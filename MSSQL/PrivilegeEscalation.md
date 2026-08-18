@@ -7,12 +7,10 @@ This means you inherit all server-level permissions of that login, including acc
 If a lower privilege account can impersonate a more privileged login (like sa), it can escalate to full administrative control.
 
 **Execute As User**
-
 Scope: Database-level
 When you run EXECUTE AS USER = 'user_name' , SQL Server changes your context only within the current database.
 You inherit the permissions of that database user, but you don't automatically gain server-wide rights.
 If a user can impersonate dbo or another powerful database user, they can escalate privileges inside that database. potentially chaining it with other misconfigurations to reach higher levels.
 
 Login impersonation - affects the entire server
-
 User Impersonation - affects only the current database.
