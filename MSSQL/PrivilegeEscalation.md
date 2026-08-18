@@ -14,4 +14,5 @@ You inherit the permissions of that database user, but you don't automatically g
 If a user can impersonate dbo or another powerful database user, they can escalate privileges inside that database. potentially chaining it with other misconfigurations to reach higher levels.
 
 Login impersonation - affects the entire server
+
 User Impersonation - affects only the current database.
